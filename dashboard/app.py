@@ -117,4 +117,9 @@ st.markdown("""
 <div style='text-align: center; color: grey; font-size: 0.9rem;'>
     Built by Austin Deering 💻 | Powered by Python & Streamlit
 </div>
+<div style='margin-top: 1rem; font-size: 0.8rem; text-align: center; color: darkred;'>
+    ⚠️ Disclaimer: This tool is provided for educational and informational purposes only.
+    It is not guaranteed to be accurate or comprehensive. Do not rely on this tool as your sole method
+    of threat detection. Always verify results with professional security tools and procedures.
+</div>
 """, unsafe_allow_html=True)
