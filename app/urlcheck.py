@@ -1,3 +1,4 @@
+import time
 import requests
 
 def check_url_virustotal(url, api_key):
@@ -5,39 +6,31 @@ def check_url_virustotal(url, api_key):
     headers = {"x-apikey": api_key}
 
     try:
-        # Step 1: Submit URL for scanning
-        submit_response = requests.post(endpoint, headers=headers, data={"url": url})
-        if submit_response.status_code != 200:
-            return {
-                "status": "error",
-                "error": f"Submit failed with status {submit_response.status_code}: {submit_response.text}"
-            }
+        # Step 1: Submit the URL
+        submit_resp = requests.post(endpoint, headers=headers, data={"url": url})
+        if submit_resp.status_code != 200:
+            return {"error": "Failed to submit URL"}
 
-        scan_id = submit_response.json().get("data", {}).get("id")
-        if not scan_id:
-            return {"status": "error", "error": "Scan ID not found in response"}
-
-        # Step 2: Retrieve analysis results
+        scan_id = submit_resp.json()["data"]["id"]
         analysis_url = f"{endpoint}/{scan_id}"
-        analysis_response = requests.get(analysis_url, headers=headers)
 
-        if analysis_response.status_code != 200:
-            return {
-                "status": "error",
-                "error": f"Analysis failed with status {analysis_response.status_code}: {analysis_response.text}"
-            }
+        # Step 2: Poll for results (max 10 tries)
+        for _ in range(10):
+            result_resp = requests.get(analysis_url, headers=headers)
+            result_json = result_resp.json()
 
-        analysis_data = analysis_response.json().get("data", {})
-        stats = analysis_data.get("attributes", {}).get("last_analysis_stats", {})
+            status = result_json.get("data", {}).get("attributes", {}).get("status")
+            if status == "completed":
+                stats = result_json["data"]["attributes"]["last_analysis_stats"]
+                return {
+                    "harmless": stats.get("harmless", 0),
+                    "suspicious": stats.get("suspicious", 0),
+                    "malicious": stats.get("malicious", 0),
+                    "total": sum(stats.values())
+                }
+            time.sleep(2)  # Wait before retrying
 
-        return {
-            "malicious": stats.get("malicious", 0),
-            "suspicious": stats.get("suspicious", 0),
-            "harmless": stats.get("harmless", 0),
-            "total": sum(stats.values())
-        }
+        return {"error": "Scan did not complete in time"}
 
     except Exception as e:
-        return {"status": "error", "error": str(e)}
-
-
+        return {"error": str(e)}
