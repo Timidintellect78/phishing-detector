@@ -1,35 +1,41 @@
 import requests
+import time
 
 def check_url_virustotal(url, api_key):
-    endpoint = "https://www.virustotal.com/api/v3/urls"
     headers = {"x-apikey": api_key}
+    endpoint = "https://www.virustotal.com/api/v3/urls"
 
     try:
-        # Step 1: Submit the URL for scanning
-        response = requests.post(endpoint, headers=headers, data={"url": url})
-        if response.status_code != 200:
-            return {"error": f"Submission failed: {response.status_code} - {response.text}"}
+        # Submit the URL for scanning
+        submission = requests.post(endpoint, headers=headers, data={"url": url})
+        if submission.status_code != 200:
+            return {"error": f"URL submission failed with code {submission.status_code}", "url": url}
 
-        data = response.json()
-        scan_id = data.get("data", {}).get("id")
+        scan_id = submission.json().get("data", {}).get("id")
         if not scan_id:
-            return {"error": "Scan ID not found in VirusTotal response."}
+            return {"error": "Missing scan ID from VirusTotal response", "url": url}
 
-        # Step 2: Retrieve scan results
+        # Wait briefly to let VirusTotal finish analysis
+        time.sleep(5)  # adjust or loop for polling if needed
+
+        # Fetch the scan result
         analysis_url = f"{endpoint}/{scan_id}"
         result = requests.get(analysis_url, headers=headers)
         if result.status_code != 200:
-            return {"error": f"Failed to fetch analysis: {result.status_code} - {result.text}"}
+            return {"error": f"Failed to retrieve analysis, code {result.status_code}", "url": url}
 
-        result_data = result.json().get("data", {})
-        stats = result_data.get("attributes", {}).get("last_analysis_stats", {})
+        attributes = result.json().get("data", {}).get("attributes", {})
+        stats = attributes.get("last_analysis_stats", {})
+        if not stats:
+            return {"error": "Analysis stats missing", "url": url}
 
         return {
-            "malicious": stats.get("malicious", 0),
-            "suspicious": stats.get("suspicious", 0),
             "harmless": stats.get("harmless", 0),
-            "total": sum(stats.values())
+            "suspicious": stats.get("suspicious", 0),
+            "malicious": stats.get("malicious", 0),
+            "total": sum(stats.values()),
         }
 
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e), "url": url}
+
