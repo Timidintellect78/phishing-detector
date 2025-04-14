@@ -1,0 +1,22 @@
+From: "PayPal Support" <security@paypal.com>
+To: you@example.com
+Subject: Urgent: Account Verification Needed
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="001a114103d19a65f90566"
+
+--001a114103d19a65f90566
+Content-Type: text/plain; charset="UTF-8"
+
+Please verify your account immediately to avoid restrictions.
+
+--001a114103d19a65f90566
+Content-Type: text/html; charset="UTF-8"
+
+<html>
+  <body>
+    <p>Please verify your account by clicking the link below:</p>
+    <a href="http://malicious-site.biz/login">Verify Account</a>
+  </body>
+</html>
+
+--001a114103d19a65f90566--

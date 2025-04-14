@@ -1,0 +1,14 @@
+From: Amazon Support <amazonsupport@gmail.com>
+To: you@example.com
+Subject: ⚠️ Action Required: Verify Your Amazon Account Immediately
+Date: Fri, 12 Apr 2024 09:34:21 -0700
+Content-Type: text/html; charset=UTF-8
+
+<html>
+  <body>
+    <p>Dear customer,</p>
+    <p>We have detected unusual activity on your Amazon account.</p>
+    <p>To protect your account, please <a href="https://demo.testfire.net/login.jsp">verify your information</a> within 24 hours or access will be restricted.</p>
+    <p>Thank you,<br>Amazon Security Team</p>
+  </body>
+</html>

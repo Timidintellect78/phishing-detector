@@ -1,0 +1,25 @@
+Return-Path: <spoof@weird-relay.xyz>
+From: "Amazon Support" <amazonsupport123@gmail.com>
+Reply-To: attacker@anotherdomain.io
+To: you@example.com
+Subject: Important: Your Amazon account security update
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="001a114103d19a65f90566"
+
+--001a114103d19a65f90566
+Content-Type: text/plain; charset="UTF-8"
+
+Your Amazon account was recently accessed from an unknown device. Please confirm it was you.
+Click here: http://testphp.vulnweb.com/login.php 
+
+--001a114103d19a65f90566
+Content-Type: text/html; charset="UTF-8"
+
+<html>
+  <body>
+    <p>Your Amazon account was recently accessed from an unknown device.</p>
+    <p>If this was not you, please reply to this email for support.</p>
+  </body>
+</html>
+
+--001a114103d19a65f90566--
