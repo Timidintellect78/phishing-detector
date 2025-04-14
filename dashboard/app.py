@@ -11,7 +11,7 @@ from detector import analyze_email
 from report import generate_markdown_report
 from urlcheck import check_url_virustotal
 
-VT_API_KEY = st.secrets["virustotal"]["api_key"]  # Replace with your actual key
+VT_API_KEY = st.secrets["VT_API_KEY"]  # Your actual VirusTotal API key
 
 st.set_page_config(page_title="📧 Phishing Detector", layout="wide")
 
@@ -35,7 +35,7 @@ if uploaded_file:
     parsed['dkim_passed'] = True
 
     result = analyze_email(parsed)
-    vt_results = {}  # Store results for each link
+    vt_results = {}
 
     color_map = {
         "safe": "green",
@@ -57,25 +57,19 @@ if uploaded_file:
         st.subheader("🔗 Links Found")
         for link in parsed['links']:
             st.code(link)
-            st.markdown(f"Checking link: [{link}]({link})")
-
             vt_result = check_url_virustotal(link, VT_API_KEY)
             vt_results[link] = vt_result
 
-            st.markdown("**VirusTotal result:**")
-            st.json(vt_result)
-
             if vt_result.get("error"):
-                st.info(f"VirusTotal couldn't scan: {vt_result['error']}")
-                harmless = suspicious = malicious = "N/A"
+                st.info(f"⚠️ VirusTotal error: {vt_result['error']}")
             else:
-                harmless = vt_result.get('harmless', 'N/A')
-                suspicious = vt_result.get('suspicious', 'N/A')
-                malicious = vt_result.get('malicious', 'N/A')
+                harmless = vt_result.get("harmless", "N/A")
+                suspicious = vt_result.get("suspicious", "N/A")
+                malicious = vt_result.get("malicious", "N/A")
 
-            st.markdown(
-                f"✅ Harmless: {harmless} | ⚠️ Suspicious: {suspicious} | ❌ Malicious: {malicious}"
-            )
+                st.markdown(
+                    f"✅ Harmless: {harmless} | ⚠️ Suspicious: {suspicious} | ❌ Malicious: {malicious}"
+                )
 
         st.subheader("📄 Export Report")
         if st.button("Generate Markdown Report"):
