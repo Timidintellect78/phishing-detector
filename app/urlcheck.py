@@ -1,24 +1,29 @@
 import requests
-import base64
 
 def check_url_virustotal(url, api_key):
+    endpoint = "https://www.virustotal.com/api/v3/urls"
+    headers = {"x-apikey": api_key}
+
     try:
-        # Step 1: Submit URL for scanning
-        endpoint = "https://www.virustotal.com/api/v3/urls"
-        headers = {"x-apikey": api_key}
+        # Step 1: Submit the URL for scanning
         response = requests.post(endpoint, headers=headers, data={"url": url})
         if response.status_code != 200:
-            return {"error": f"Submit failed: {response.text}"}
+            return {"error": f"Submission failed: {response.status_code} - {response.text}"}
 
-        # Step 2: Retrieve the scan ID and encode it safely
-        scan_id = response.json()["data"]["id"]
-        encoded_url_id = base64.urlsafe_b64encode(url.encode()).decode().strip("=")
+        data = response.json()
+        scan_id = data.get("data", {}).get("id")
+        if not scan_id:
+            return {"error": "Scan ID not found in VirusTotal response."}
 
-        # Step 3: Fetch the analysis results
-        analysis_url = f"https://www.virustotal.com/api/v3/urls/{encoded_url_id}"
-        result = requests.get(analysis_url, headers=headers).json()
+        # Step 2: Retrieve scan results
+        analysis_url = f"{endpoint}/{scan_id}"
+        result = requests.get(analysis_url, headers=headers)
+        if result.status_code != 200:
+            return {"error": f"Failed to fetch analysis: {result.status_code} - {result.text}"}
 
-        stats = result["data"]["attributes"]["last_analysis_stats"]
+        result_data = result.json().get("data", {})
+        stats = result_data.get("attributes", {}).get("last_analysis_stats", {})
+
         return {
             "malicious": stats.get("malicious", 0),
             "suspicious": stats.get("suspicious", 0),
