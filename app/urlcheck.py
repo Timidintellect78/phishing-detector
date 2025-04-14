@@ -1,41 +1,43 @@
 import requests
-import time
 
 def check_url_virustotal(url, api_key):
-    headers = {"x-apikey": api_key}
     endpoint = "https://www.virustotal.com/api/v3/urls"
+    headers = {"x-apikey": api_key}
 
     try:
-        # Submit the URL for scanning
-        submission = requests.post(endpoint, headers=headers, data={"url": url})
-        if submission.status_code != 200:
-            return {"error": f"URL submission failed with code {submission.status_code}", "url": url}
+        # Step 1: Submit URL for scanning
+        submit_response = requests.post(endpoint, headers=headers, data={"url": url})
+        if submit_response.status_code != 200:
+            return {
+                "status": "error",
+                "error": f"Submit failed with status {submit_response.status_code}: {submit_response.text}"
+            }
 
-        scan_id = submission.json().get("data", {}).get("id")
+        scan_id = submit_response.json().get("data", {}).get("id")
         if not scan_id:
-            return {"error": "Missing scan ID from VirusTotal response", "url": url}
+            return {"status": "error", "error": "Scan ID not found in response"}
 
-        # Wait briefly to let VirusTotal finish analysis
-        time.sleep(5)  # adjust or loop for polling if needed
-
-        # Fetch the scan result
+        # Step 2: Retrieve analysis results
         analysis_url = f"{endpoint}/{scan_id}"
-        result = requests.get(analysis_url, headers=headers)
-        if result.status_code != 200:
-            return {"error": f"Failed to retrieve analysis, code {result.status_code}", "url": url}
+        analysis_response = requests.get(analysis_url, headers=headers)
 
-        attributes = result.json().get("data", {}).get("attributes", {})
-        stats = attributes.get("last_analysis_stats", {})
-        if not stats:
-            return {"error": "Analysis stats missing", "url": url}
+        if analysis_response.status_code != 200:
+            return {
+                "status": "error",
+                "error": f"Analysis failed with status {analysis_response.status_code}: {analysis_response.text}"
+            }
+
+        analysis_data = analysis_response.json().get("data", {})
+        stats = analysis_data.get("attributes", {}).get("last_analysis_stats", {})
 
         return {
-            "harmless": stats.get("harmless", 0),
-            "suspicious": stats.get("suspicious", 0),
             "malicious": stats.get("malicious", 0),
-            "total": sum(stats.values()),
+            "suspicious": stats.get("suspicious", 0),
+            "harmless": stats.get("harmless", 0),
+            "total": sum(stats.values())
         }
 
     except Exception as e:
-        return {"error": str(e), "url": url}
+        return {"status": "error", "error": str(e)}
+
 
