@@ -11,7 +11,7 @@ from detector import analyze_email
 from report import generate_markdown_report
 from urlcheck import check_url_virustotal
 
-VT_API_KEY = "07482e552f6500507d7bc03eee96607a886b17551e24a5cca7c55075eb239b3e"
+VT_API_KEY = ""
   # Your actual VirusTotal API key
 
 st.set_page_config(page_title="📧 Phishing Detector", layout="wide")
