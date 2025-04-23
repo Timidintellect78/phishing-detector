@@ -1,18 +1,15 @@
 import streamlit as st
 st.set_page_config(page_title="📧 Phishing Detector", layout="wide")
 
-
-
 import sys
 import os
 import tempfile
 import plotly.graph_objects as go
 
-# Path fix
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Extend path to app modules
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "app")))
+from parser import parse_email_from_file
 
-# Now it's safe to import app files
-from app.parser import parse_email_from_file
 from app.detector import analyze_email
 from app.report import generate_markdown_report
 from app.urlcheck import check_url_virustotal
