@@ -1,5 +1,6 @@
-import streamlit as st
 st.set_page_config(page_title="📧 Phishing Detector", layout="wide")
+import streamlit as st
+
 
 import sys
 import os
