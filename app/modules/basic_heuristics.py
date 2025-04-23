@@ -1,6 +1,6 @@
 # app/modules/basic_heuristics.py
 
-from app.base import DetectionModule
+from app.modules.base import DetectionModule
 
 class BasicHeuristicsModule(DetectionModule):
     def analyze(self, email_data):
