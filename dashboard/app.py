@@ -1,16 +1,10 @@
 import streamlit as st
+st.set_page_config(page_title="📧 Phishing Detector", layout="wide")
+
 import sys
 import os
 import tempfile
 import plotly.graph_objects as go
-
-# Extend path to app modules
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "app")))
-from parser import parse_email_from_file
-from detector import analyze_email
-from report import generate_markdown_report
-from urlcheck import check_url_virustotal
-
 VT_API_KEY = ""
   # Your actual VirusTotal API key
 
