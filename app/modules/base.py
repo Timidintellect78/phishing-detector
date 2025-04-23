@@ -1,5 +1,3 @@
-from base import DetectionModule
-
 class BasicHeuristicsModule(DetectionModule):
     def analyze(self, email_data):
         score = 0
