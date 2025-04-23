@@ -6,14 +6,14 @@ import os
 import tempfile
 import plotly.graph_objects as go
 
-# ✅ Add path to resolve app and modules
+# Path fix
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+# Now it's safe to import app files
 from app.parser import parse_email_from_file
 from app.detector import analyze_email
 from app.report import generate_markdown_report
 from app.urlcheck import check_url_virustotal
-
 # 👇 Replace with st.secrets["VT_API_KEY"] if using Streamlit secrets
 VT_API_KEY = ""
 
