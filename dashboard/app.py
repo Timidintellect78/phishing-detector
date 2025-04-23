@@ -5,10 +5,17 @@ import sys
 import os
 import tempfile
 import plotly.graph_objects as go
-VT_API_KEY = ""
-  # Your actual VirusTotal API key
 
-st.set_page_config(page_title="📧 Phishing Detector", layout="wide")
+# ✅ Add path to resolve app and modules
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from parser import parse_email_from_file
+from detector import analyze_email
+from report import generate_markdown_report
+from urlcheck import check_url_virustotal
+
+# 👇 Replace with st.secrets["VT_API_KEY"] if using Streamlit secrets
+VT_API_KEY = ""
 
 st.markdown("""
     <h1 style='text-align: center; color: #FF4B4B;'>Phishing Email Detection Dashboard</h1>
@@ -24,7 +31,7 @@ if uploaded_file:
 
     parsed = parse_email_from_file(tmp_path)
 
-    # Simulated values (comment out for real emails)
+    # Simulated values for testing — remove in production
     parsed['reply_to'] = "fraud@fake.com"
     parsed['spf_passed'] = False
     parsed['dkim_passed'] = True
@@ -112,3 +119,4 @@ st.markdown("""
     of threat detection. Always verify results with professional security tools and procedures.
 </div>
 """, unsafe_allow_html=True)
+
