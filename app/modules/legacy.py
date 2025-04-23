@@ -1,17 +1,19 @@
 # app/modules/legacy.py
 
-from app.modules.base import DetectionModule
+from modules.base import DetectionModule  # ✅ fixed path assuming detector.py uses relative import
 
 class LegacyDetection(DetectionModule):
+    def analyze(self, email_data):
+        self.parsed_email = email_data
+        return self.run()
+
     def run(self):
         risk_score = 0
         flags = []
         email = self.parsed_email
+        # ... keep your logic unchanged here ...
+        return {"score": min(risk_score, 100), "flags": flags}
 
-        body = email['body'].lower()
-        links = email['links']
-        sender = email['from'] or ""
-        subject = email['subject'] or ""
 
         SUSPICIOUS_KEYWORDS = [
             "verify your account", "login now", "urgent", "update your info",
