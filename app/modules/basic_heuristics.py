@@ -7,40 +7,42 @@ class BasicHeuristicsModule(DetectionModule):
         score = 0
         flags = []
 
-        # Check subject and body for suspicious keywords
-        keywords = ['verify your account', 'login here', 'update password', 'urgent', 'click below']
-        text = (email_data.get('subject', '') + " " + email_data.get('body', '')).lower()
+        # Flag suspicious reply-to
+        if email_data.get("reply_to") and email_data["reply_to"] != email_data.get("from"):
+            score += 20
+            flags.append("Reply-To address differs from From address")
 
-        for keyword in keywords:
-            if keyword in text:
-                score += 15
-                flags.append(f"Keyword detected: '{keyword}'")
-
-        # Header checks
-        if not email_data.get("dkim_passed", True):
+        # Check SPF & DKIM
+        if not email_data.get("spf_passed"):
+            score += 20
+            flags.append("SPF check failed")
+        if not email_data.get("dkim_passed"):
             score += 20
             flags.append("DKIM check failed")
 
-        if not email_data.get("spf_passed", True):
-            score += 20
-            flags.append("SPF check failed")
+        # Check for phishing keywords
+        body = email_data.get("body", "").lower()
+        phishing_keywords = ["verify your account", "click here", "urgent action", "login"]
+        for kw in phishing_keywords:
+            if kw in body:
+                score += 10
+                flags.append(f"Body contains suspicious phrase: '{kw}'")
 
-        if "reply_to" in email_data and email_data.get("reply_to") != email_data.get("from"):
-            score += 10
-            flags.append("Reply-to address does not match sender")
+        # Basic link check
+        if email_data.get("links"):
+            for link in email_data["links"]:
+                if any(domain in link for domain in ["bit.ly", "tinyurl", "rebrand.ly"]):
+                    score += 10
+                    flags.append(f"Suspicious shortlink found: {link}")
 
-        # Cap score and assign label
-        score = min(score, 100)
-
-        if score < 30:
-            label = "safe"
-        elif score < 70:
-            label = "suspicious"
-        else:
+        label = "safe"
+        if score >= 70:
             label = "phishing"
+        elif score >= 30:
+            label = "suspicious"
 
         return {
-            "score": score,
+            "score": min(score, 100),
             "label": label,
             "flags": flags
         }
