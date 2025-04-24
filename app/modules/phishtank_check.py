@@ -1,5 +1,5 @@
 # app/modules/phishtank_check.py
-from modules.base import DetectionModule
+from app.modules.base import DetectionModule
 import requests
 
 class PhishTankModule(DetectionModule):
