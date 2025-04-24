@@ -1,32 +1,34 @@
 # app/modules/phishtank_check.py
-
+import csv
 import requests
 from app.modules.base import DetectionModule
 
-PHISHTANK_API_URL = "http://data.phishtank.com/data/online-valid.json"
+PHISHTANK_URL = "http://data.phishtank.com/data/online-valid.csv"
 
 class PhishTankModule(DetectionModule):
     def run(self):
         flags = []
         score = 0
-        links = self.parsed_email.get("links", [])
+        email_links = self.parsed_email.get("links", [])
 
         try:
-            resp = requests.get(PHISHTANK_API_URL, timeout=10)
-            if resp.status_code != 200:
-                flags.append("PhishTank: Failed to fetch phishing database")
-                return {"score": score, "flags": flags}
+            response = requests.get(PHISHTANK_URL, timeout=10)
+            response.raise_for_status()
 
-            phishing_data = resp.json()
-            phish_urls = {entry['url'].lower() for entry in phishing_data if entry.get('online') == 'yes'}
+            csv_lines = response.text.splitlines()
+            reader = csv.DictReader(csv_lines)
 
-            for link in links:
-                normalized_link = link.strip().lower()
-                if normalized_link in phish_urls:
-                    score += 30
-                    flags.append(f"PhishTank: Known phishing link detected - {link}")
+            phish_urls = set(row["url"].strip().lower() for row in reader if "url" in row)
+
+            for link in email_links:
+                if link.lower() in phish_urls:
+                    score += 50
+                    flags.append(f"PhishTank match found: {link}")
 
         except Exception as e:
-            flags.append(f"PhishTank error: {str(e)}")
+            flags.append(f"PhishTank: Error fetching phishing database – {str(e)}")
 
-        return {"score": score, "flags": flags}
+        return {
+            "score": min(score, 100),
+            "flags": flags
+        }
