@@ -2,7 +2,7 @@
 
 import os
 import importlib
-from modules.base import DetectionModule
+from app.modules.base import DetectionModule
 
 def analyze_email(parsed_email):
     score = 0
