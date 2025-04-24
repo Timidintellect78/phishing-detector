@@ -1,4 +1,5 @@
 # app/modules/base.py
+
 class DetectionModule:
     def __init__(self, email_data):
         self.parsed_email = email_data
@@ -7,4 +8,4 @@ class DetectionModule:
         raise NotImplementedError("Subclasses must implement the analyze method.")
 
     def run(self):
-        raise NotImplementedError("Subclasses must implement the run method.")
+        return self.analyze(self.parsed_email)
