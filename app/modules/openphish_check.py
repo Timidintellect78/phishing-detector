@@ -15,8 +15,11 @@ class OpenPhishModule(DetectionModule):
             response = requests.get(self.FEED_URL, timeout=10)
             if response.status_code == 200:
                 self._phish_urls = response.text.strip().splitlines()
+                print(f"[OpenPhish] Fetched {len(self._phish_urls)} URLs from feed.")
+            else:
+                print(f"[OpenPhish] Failed to fetch feed: HTTP {response.status_code}")
         except Exception as e:
-            print(f"[OpenPhish] Failed to fetch feed: {e}")
+            print(f"[OpenPhish] Exception while fetching feed: {e}")
 
     def run(self):
         self._fetch_feed()
@@ -28,11 +31,12 @@ class OpenPhishModule(DetectionModule):
             return None
 
         for link in self.parsed_email.get("links", []):
+            print("[OpenPhish] Checking URL from email:", link)
             for phish_url in self._phish_urls:
                 if phish_url in link:
                     score += 50
                     flags.append(f"⚠️ Link matches OpenPhish database: {phish_url}")
-     print("[OpenPhish] Checking URL:", link)        break
+                    break  # Stop after the first match
 
         return {
             "score": min(score, 100),
