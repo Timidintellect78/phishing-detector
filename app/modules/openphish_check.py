@@ -1,6 +1,7 @@
 # app/modules/openphish_check.py
 
 import requests
+import streamlit as st
 from app.modules.base import DetectionModule
 
 class OpenPhishModule(DetectionModule):
@@ -12,36 +13,34 @@ class OpenPhishModule(DetectionModule):
 
     def _fetch_feed(self):
         try:
-            response = requests.get(self.FEED_URL, timeout=10)
+            headers = {
+                "User-Agent": "Mozilla/5.0 (compatible; PhishingDetector/1.0)"
+            }
+            response = requests.get(self.FEED_URL, headers=headers, timeout=15)
             if response.status_code == 200:
-                lines = response.text.strip().splitlines()
-                if lines:
-                    self._phish_urls = [url.strip().lower() for url in lines]
+                self._phish_urls = response.text.strip().splitlines()
+            else:
+                st.warning("⚠ OpenPhish feed request failed with status code: {}".format(response.status_code))
         except Exception as e:
-            # Log an error message directly into Streamlit instead of crashing
-            import streamlit as st
-            st.warning(f"⚠ OpenPhish feed could not be fetched: {e}")
+            st.warning(f"⚠ Failed to fetch OpenPhish feed: {e}")
 
     def run(self):
         self._fetch_feed()
+
         flags = []
         score = 0
 
         if not self._phish_urls:
-            import streamlit as st
-            st.warning("⚠ OpenPhish feed could not be fetched or was empty.")
             return None
 
         for link in self.parsed_email.get("links", []):
-            link_lower = link.strip().lower()
             for phish_url in self._phish_urls:
-                if phish_url in link_lower:
+                if phish_url in link:
                     score += 50
-                    flags.append(f"⚠️ Link matches OpenPhish database: {link}")
-                    break  # Stop checking once matched
+                    flags.append(f"⚠️ Link matches OpenPhish database: {phish_url}")
+                    break
 
         return {
             "score": min(score, 100),
             "flags": flags
         }
-
