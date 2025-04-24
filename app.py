@@ -17,7 +17,7 @@ from app.detector import analyze_email
 from app.report import generate_markdown_report
 from app.urlcheck import check_url_virustotal
 # 👇 Replace with st.secrets["VT_API_KEY"] if using Streamlit secrets
-VT_API_KEY = ""
+VT_API_KEY = st.secrets["VT_API_KEY"]
 
 st.markdown("""
     <h1 style='text-align: center; color: #FF4B4B;'>Phishing Email Detection Dashboard</h1>
