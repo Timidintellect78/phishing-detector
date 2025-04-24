@@ -32,7 +32,7 @@ class OpenPhishModule(DetectionModule):
                 if phish_url in link:
                     score += 50
                     flags.append(f"⚠️ Link matches OpenPhish database: {phish_url}")
-                    break
+     print("[OpenPhish] Checking URL:", link)        break
 
         return {
             "score": min(score, 100),
