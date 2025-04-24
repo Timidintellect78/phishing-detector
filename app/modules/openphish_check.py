@@ -14,28 +14,34 @@ class OpenPhishModule(DetectionModule):
         try:
             response = requests.get(self.FEED_URL, timeout=10)
             if response.status_code == 200:
-                self._phish_urls = [url.strip() for url in response.text.strip().splitlines()]
+                self._phish_urls = response.text.strip().splitlines()
         except Exception as e:
-            # You could log to a file or Streamlit console if needed
-            pass
+            # For debugging: write to a flag instead of printing
+            self._phish_urls = []
+            self._fetch_error = str(e)
 
     def run(self):
         self._fetch_feed()
 
         flags = []
         score = 0
+
         if not self._phish_urls:
-            return None
+            flags.append("⚠️ OpenPhish feed could not be fetched or was empty.")
+            return {
+                "score": 0,
+                "flags": flags
+            }
 
         for link in self.parsed_email.get("links", []):
-            for phish_url in self._phish_urls:
-                if phish_url in link:
-                    score += 50
-                    flags.append(f"⚠️ Link matches OpenPhish database: {phish_url}")
-                    break  # One match is enough
+            if any(phish_url in link for phish_url in self._phish_urls):
+                flags.append(f"⚠️ Link matches OpenPhish database: {link}")
+                score += 50
+                break
 
         return {
             "score": min(score, 100),
             "flags": flags
         }
+
 
