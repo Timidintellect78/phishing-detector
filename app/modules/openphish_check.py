@@ -1,7 +1,6 @@
 # app/modules/openphish_check.py
 
 import requests
-import streamlit as st
 from app.modules.base import DetectionModule
 
 class OpenPhishModule(DetectionModule):
@@ -12,17 +11,17 @@ class OpenPhishModule(DetectionModule):
         self._phish_urls = []
 
     def _fetch_feed(self):
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+        }
         try:
-            headers = {
-                "User-Agent": "Mozilla/5.0 (compatible; PhishingDetector/1.0)"
-            }
-            response = requests.get(self.FEED_URL, headers=headers, timeout=15)
+            response = requests.get(self.FEED_URL, timeout=10, headers=headers)
             if response.status_code == 200:
                 self._phish_urls = response.text.strip().splitlines()
             else:
-                st.warning("⚠ OpenPhish feed request failed with status code: {}".format(response.status_code))
+                print(f"[OpenPhish] Failed with status {response.status_code}")
         except Exception as e:
-            st.warning(f"⚠ Failed to fetch OpenPhish feed: {e}")
+            print(f"[OpenPhish] Exception: {e}")
 
     def run(self):
         self._fetch_feed()
