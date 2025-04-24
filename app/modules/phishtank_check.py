@@ -12,19 +12,19 @@ class PhishTankModule(DetectionModule):
         links = self.parsed_email.get("links", [])
 
         try:
-            # Fetch the latest PhishTank data
-            response = requests.get(PHISHTANK_API_URL, timeout=10)
-            if response.status_code != 200:
+            resp = requests.get(PHISHTANK_API_URL, timeout=10)
+            if resp.status_code != 200:
                 flags.append("PhishTank: Failed to fetch phishing database")
-                return {"score": 0, "flags": flags}
+                return {"score": score, "flags": flags}
 
-            phishtank_data = response.json()
-            phish_urls = {entry['url'] for entry in phishtank_data}
+            phishing_data = resp.json()
+            phish_urls = {entry['url'].lower() for entry in phishing_data if entry.get('online') == 'yes'}
 
             for link in links:
-                if any(phish_url in link for phish_url in phish_urls):
-                    score += 40
-                    flags.append(f"PhishTank: Link matches known phishing URL - {link}")
+                normalized_link = link.strip().lower()
+                if normalized_link in phish_urls:
+                    score += 30
+                    flags.append(f"PhishTank: Known phishing link detected - {link}")
 
         except Exception as e:
             flags.append(f"PhishTank error: {str(e)}")
