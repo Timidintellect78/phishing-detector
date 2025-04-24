@@ -112,7 +112,7 @@ if uploaded_file:
             }
         ))
 
-        st.plotly_chart(gauge)  # ✅ DISPLAY THE GAUGE
+        st.plotly_chart(gauge, use_container_width=True, height=250)
 
         st.markdown(
             f"**Risk Level:** <span style='color:{color_map[result['label']]}; font-size: 24px;'>{result['label'].upper()}</span>",
