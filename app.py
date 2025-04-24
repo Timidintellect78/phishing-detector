@@ -16,7 +16,8 @@ from app.parser import parse_email_from_file
 from app.detector import analyze_email
 from app.report import generate_markdown_report
 from app.urlcheck import check_url_virustotal
-# 👇 Replace with st.secrets["VT_API_KEY"] if using Streamlit secrets
+
+# 👇 Use secret for API key
 VT_API_KEY = st.secrets["VT_API_KEY"]
 
 st.markdown("""
@@ -47,8 +48,7 @@ if uploaded_file:
         "phishing": "red"
     }
 
-    col1, col2 = st.columns([1.5, 1.5])  # Even columns (instead of [2, 1])
-
+    col1, col2 = st.columns([1.5, 1.5])  # Even column widths
 
     with col1:
         st.subheader("📨 Email Summary")
@@ -82,36 +82,36 @@ if uploaded_file:
             with open(path, "rb") as f:
                 st.download_button("Download Report", f, file_name="phishing_report.md")
 
-        with col2:
+    with col2:
         st.subheader("🧠 Phishing Risk")
 
         gauge = go.Figure(go.Indicator(
-    mode="gauge+number",
-    value=result['score'],
-    title={'text': "Risk Score"},
-    gauge={
-        'axis': {
-            'range': [0, 100],
-            'tickvals': [0, 20, 40, 60, 80, 100],
-            'ticktext': ['0', '20', '40', '60', '80', '100'],
-            'tickwidth': 2,
-            'tickcolor': "white"
-        },
-        'bar': {'color': color_map[result['label']]},
-        'bgcolor': "black",
-        'steps': [
-            {'range': [0, 30], 'color': "#DFF2BF"},
-            {'range': [30, 70], 'color': "#FFF8C6"},
-            {'range': [70, 100], 'color': "#FFBABA"}
-        ],
-        'threshold': {
-            'line': {'color': "red", 'width': 4},
-            'thickness': 0.75,
-            'value': result['score']
-        }
-    },
-    domain={'x': [0, 1], 'y': [0, 1]}
-))
+            mode="gauge+number",
+            value=result['score'],
+            title={'text': "Risk Score"},
+            gauge={
+                'axis': {
+                    'range': [0, 100],
+                    'tickvals': [0, 20, 40, 60, 80, 100],
+                    'ticktext': ['0', '20', '40', '60', '80', '100'],
+                    'tickwidth': 2,
+                    'tickcolor': "white"
+                },
+                'bar': {'color': color_map[result['label']]},
+                'bgcolor': "black",
+                'steps': [
+                    {'range': [0, 30], 'color': "#DFF2BF"},
+                    {'range': [30, 70], 'color': "#FFF8C6"},
+                    {'range': [70, 100], 'color': "#FFBABA"}
+                ],
+                'threshold': {
+                    'line': {'color': "red", 'width': 4},
+                    'thickness': 0.75,
+                    'value': result['score']
+                }
+            },
+            domain={'x': [0, 1], 'y': [0, 1]}
+        ))
 
         st.plotly_chart(gauge, use_container_width=True, height=250)
 
@@ -124,7 +124,6 @@ if uploaded_file:
         for flag in result['flags']:
             st.warning(flag)
 
-
 # ✅ Footer
 st.markdown("""
 <hr style='margin-top: 3rem; margin-bottom: 0.5rem;'>
@@ -133,8 +132,7 @@ st.markdown("""
 </div>
 <div style='margin-top: 1rem; font-size: 0.8rem; text-align: center; color: darkred;'>
     ⚠️ Disclaimer: This tool is provided for educational and informational purposes only.
-    It is not guaranteed to be accurate or comprehensive. Do not rely on this tool as your sole method
-    of threat detection. Always verify results with professional security tools and procedures.
+    It is not guaranteed to be accurate or comprehensive. Always verify results with professional tools.
 </div>
 """, unsafe_allow_html=True)
 
