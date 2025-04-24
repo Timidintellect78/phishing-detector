@@ -86,32 +86,32 @@ if uploaded_file:
         st.subheader("🧠 Phishing Risk")
 
         gauge = go.Figure(go.Indicator(
-            mode="gauge+number+delta",
-            value=result['score'],
-            domain={'x': [0, 1], 'y': [0, 1]},
-            title={'text': "Risk Score"},
-            gauge={
-                'axis': {
-                    'range': [0, 100],
-                    'tickvals': [0, 20, 40, 60, 80, 100],
-                    'ticktext': ['0', '20', '40', '60', '80', '100'],
-                    'tickwidth': 2,
-                    'tickcolor': "white"
-                },
-                'bar': {'color': color_map[result['label']]},
-                'bgcolor': "black",
-                'steps': [
-                    {'range': [0, 30], 'color': "#DFF2BF"},
-                    {'range': [30, 70], 'color': "#FFF8C6"},
-                    {'range': [70, 100], 'color': "#FFBABA"}
-                ],
-                'threshold': {
-                    'line': {'color': "red", 'width': 4},
-                    'thickness': 0.75,
-                    'value': result['score']
-                }
-            }
-        ))
+    mode="gauge+number",
+    value=result['score'],
+    title={'text': "Risk Score"},
+    gauge={
+        'axis': {
+            'range': [0, 100],
+            'tickvals': [0, 20, 40, 60, 80, 100],
+            'ticktext': ['0', '20', '40', '60', '80', '100'],
+            'tickwidth': 2,
+            'tickcolor': "white"
+        },
+        'bar': {'color': color_map[result['label']]},
+        'bgcolor': "black",
+        'steps': [
+            {'range': [0, 30], 'color': "#DFF2BF"},
+            {'range': [30, 70], 'color': "#FFF8C6"},
+            {'range': [70, 100], 'color': "#FFBABA"}
+        ],
+        'threshold': {
+            'line': {'color': "red", 'width': 4},
+            'thickness': 0.75,
+            'value': result['score']
+        }
+    },
+    domain={'x': [0, 1], 'y': [0, 1]}
+))
 
         st.plotly_chart(gauge, use_container_width=True, height=250)
 
