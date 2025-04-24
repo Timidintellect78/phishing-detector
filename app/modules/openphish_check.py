@@ -1,7 +1,6 @@
 # app/modules/openphish_check.py
 
 import requests
-from urllib.parse import urlparse
 from app.modules.base import DetectionModule
 
 class OpenPhishModule(DetectionModule):
@@ -9,19 +8,16 @@ class OpenPhishModule(DetectionModule):
 
     def __init__(self, email_data):
         super().__init__(email_data)
-        self._phish_domains = set()
+        self._phish_urls = []
 
     def _fetch_feed(self):
         try:
             response = requests.get(self.FEED_URL, timeout=10)
             if response.status_code == 200:
-                lines = response.text.strip().splitlines()
-                self._phish_domains = {
-                    urlparse(url).netloc.lower()
-                    for url in lines if urlparse(url).netloc
-                }
+                self._phish_urls = response.text.strip().splitlines()
         except Exception:
-            pass  # Silently fail to avoid crashing the app
+            # Silently fail if feed cannot be fetched (fail-safe)
+            self._phish_urls = []
 
     def run(self):
         self._fetch_feed()
@@ -29,14 +25,16 @@ class OpenPhishModule(DetectionModule):
         flags = []
         score = 0
 
-        if not self._phish_domains:
+        if not self._phish_urls:
             return None
 
         for link in self.parsed_email.get("links", []):
-            domain = urlparse(link).netloc.lower()
-            if domain in self._phish_domains:
-                score += 50
-                flags.append(f"⚠️ Link domain `{domain}` matches OpenPhish database")
+            for phish_url in self._phish_urls:
+                # Use startswith to account for query strings or trailing slashes
+                if link.startswith(phish_url):
+                    score += 50
+                    flags.append(f"⚠️ Link matches OpenPhish database: {phish_url}")
+                    break  # Stop checking once matched
 
         return {
             "score": min(score, 100),
