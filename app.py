@@ -81,24 +81,38 @@ if uploaded_file:
             with open(path, "rb") as f:
                 st.download_button("Download Report", f, file_name="phishing_report.md")
 
-    with col2:
+        with col2:
         st.subheader("🧠 Phishing Risk")
+
         gauge = go.Figure(go.Indicator(
             mode="gauge+number+delta",
             value=result['score'],
             domain={'x': [0, 1], 'y': [0, 1]},
             title={'text': "Risk Score"},
             gauge={
-                'axis': {'range': [0, 100]},
+                'axis': {
+                    'range': [0, 100],
+                    'tickvals': [0, 20, 40, 60, 80, 100],
+                    'ticktext': ['0', '20', '40', '60', '80', '100'],
+                    'tickwidth': 2,
+                    'tickcolor': "white"
+                },
                 'bar': {'color': color_map[result['label']]},
+                'bgcolor': "black",
                 'steps': [
                     {'range': [0, 30], 'color': "#DFF2BF"},
                     {'range': [30, 70], 'color': "#FFF8C6"},
                     {'range': [70, 100], 'color': "#FFBABA"}
                 ],
+                'threshold': {
+                    'line': {'color': "red", 'width': 4},
+                    'thickness': 0.75,
+                    'value': result['score']
+                }
             }
         ))
-        st.plotly_chart(gauge)
+
+        st.plotly_chart(gauge)  # ✅ DISPLAY THE GAUGE
 
         st.markdown(
             f"**Risk Level:** <span style='color:{color_map[result['label']]}; font-size: 24px;'>{result['label'].upper()}</span>",
@@ -108,6 +122,7 @@ if uploaded_file:
         st.markdown("**Flags Detected:**")
         for flag in result['flags']:
             st.warning(flag)
+
 
 # ✅ Footer
 st.markdown("""
