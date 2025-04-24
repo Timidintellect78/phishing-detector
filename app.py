@@ -13,9 +13,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # ✅ Delay all app imports until AFTER set_page_config
 from app.parser import parse_email_from_file
-from detector import analyze_email
-from report import generate_markdown_report
-from urlcheck import check_url_virustotal
+from app.detector import analyze_email
+from app.report import generate_markdown_report
+from app.urlcheck import check_url_virustotal
 # 👇 Replace with st.secrets["VT_API_KEY"] if using Streamlit secrets
 VT_API_KEY = ""
 
