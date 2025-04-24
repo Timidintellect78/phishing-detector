@@ -1,6 +1,6 @@
 # app/modules/legacy.py
 
-from modules.base import DetectionModule
+from app.modules.base import DetectionModule
 
 class LegacyDetection(DetectionModule):
     def analyze(self, email_data):
